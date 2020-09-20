@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const dbCon = require('../constants/dbCon')
 
 const userSchema = new mongoose.Schema({
     name: {
@@ -24,5 +25,9 @@ const userSchema = new mongoose.Schema({
         default: Date.now()
     }
 })
-
-module.exports = mongoose.model('User', userSchema)
+userSchema.plugin(global.db.autoIncrement.plugin, {
+    model: dbCon.COLLECTION_USERS,
+    field: 'id',
+    startAt: 1
+})
+module.exports = global.db.connection.model('User', userSchema)
