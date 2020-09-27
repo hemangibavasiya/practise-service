@@ -30,4 +30,4 @@ userSchema.plugin(global.db.autoIncrement.plugin, {
     field: 'id',
     startAt: 1
 })
-module.exports = global.db.connection.model('User', userSchema)
+module.exports = global.db.connection.model(dbCon.COLLECTION_USERS, userSchema)

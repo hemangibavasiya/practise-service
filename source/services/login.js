@@ -1,9 +1,13 @@
 const { loginValidation } = require('../common/validation')
-const User = require('../model/user'),
-bcrypt = require('bcryptjs'),
+const bcrypt = require('bcryptjs'),
 jwt = require('jsonwebtoken')
 const {errorGanerator} = require('../common/errorHandlar')
-const comCon = require('../constants/comCon')
+const comCon = require('../constants/comCon'),
+dbCon = require('../constants/dbCon'),
+status  = require('http-status'),
+_ = require('lodash')
+const { getData } = require('../repository/commonRepo')
+
 
 
 const login = (body) => {
@@ -12,17 +16,16 @@ const login = (body) => {
 
             // validate body
             const { error } = loginValidation(body)
-            if (error) return reject(errorGanerator(comCon.STATUS_400, error.details[0].message))
+            if (error) return reject(errorGanerator(status.BAD_REQUEST, error.details[0].message))
 
             // check user is exists
-            const user = await User.findOne({ email: body.email})
-            if(!user) return reject(errorGanerator(comCon.STATUS_400, comCon.MSG_INVALID_USER))
-
+            const user = await getData({ email: body.email }, {}, dbCon.COLLECTION_USERS)
+            if(_.size(user) === 0) return reject(errorGanerator(status.BAD_REQUEST, comCon.MSG_INVALID_USER))
             // Compare password
-            const validPass = await bcrypt.compare(body.password, user.password)
-            if(!validPass) return reject(errorGanerator(comCon.STATUS_400, comCon.MSG_INVALID_PASSWORD))
+            const validPass = await bcrypt.compare(body.password, user[0].password)
+            if(!validPass) return reject(errorGanerator(status.BAD_REQUEST, comCon.MSG_INVALID_PASSWORD))
             // check user assigned in  https://jwt.io/
-            const token = jwt.sign({_id: user.email}, process.env.TOKEN_SECRET)
+            const token = jwt.sign({_id: user[0].email}, process.env.TOKEN_SECRET)
 
             return resolve(token)
 

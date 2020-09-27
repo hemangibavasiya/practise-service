@@ -7,6 +7,7 @@ dotenv.config()
 const dbCon = require('./repository/db')
 
 global.db = dbCon.connect()
+require('./model/modelExport')
 
 const app = express()
 
