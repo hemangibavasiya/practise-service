@@ -12,7 +12,7 @@ require('./model/modelExport')
 const app = express()
 
 
-app.listen(8081, () => console.log('server is up now'))
+app.listen(process.env.PORT, () => console.log('server is up now'))
 
 // Routes
 const authRoute = require('./routes/auth')
